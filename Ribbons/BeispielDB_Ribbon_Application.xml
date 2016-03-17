@@ -1,0 +1,34 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+  <ribbon startFromScratch="true">
+    <tabs>
+      <tab id="tabPraxisverwaltung" label="Praxisverwaltung">
+        <group id="grpPatientenverwaltung" label="Patienten">
+          <button id="btnfrmEditPatienten" size="large" label="Patientenverzeichnis" screentip="Patientenverzeichnis" supertip="&#214;ffnet das Fenster zur Verwaltung der Patientendaten" imageMso="AddressBook" onAction="Callback_RibbonOnAction" />
+        </group>  
+        <group id="grpRechnung" label="Rechnungen" tag = "RibbonName:=IDBERibbonCreator" > 
+          <button id="btnfrmEditRechnungen" size="large" label="Neue Rechnung" screentip="Neue Rechnung anlegen" supertip="Legt eine neue Rechnung an, zu welcher einzelne Positionen hinzugef&#252;gt werden k&#246;nnen." imageMso="AdpDiagramNewTable" tag="RibbonName:=IDBERibbonCreator;inMenu:=;CustomTagValue1:=;CustomTagValue2:=;CustomTagValue3:=;CustomPicture:=;CustomPicturePath:=" onAction="Callback_RibbonOnAction"   />
+          <separator id="sep_26"/>
+          <button id="btnfrmShowRechnungen" size="large" label="Alle Rechnungen" screentip="Zeigt alle Rechnungen" supertip="Zeigt alle existierenden Rechnungen an und erm&#246;glicht das Suchen nach Rechnungen" imageMso="ZoomToSelection" tag="RibbonName:=IDBERibbonCreator;inMenu:=;CustomTagValue1:=;CustomTagValue2:=;CustomTagValue3:=;CustomPicture:=;CustomPicturePath:=" onAction="Callback_RibbonOnAction"   />
+        </group>
+        <group id="grpVerwaltung" label="Verwaltung" tag = "RibbonName:=IDBERibbonCreator" > 
+          <button id="btnfrmEditLeistungstabelle" size="large" label="Leistungstabelle" screentip="Verwaltung der Leistungen" supertip="Erlaubt die Verwaltung der abrechenbaren Leistungen f&#252;r Behandlungstermine." imageMso="AccessNavigationOptions" tag="RibbonName:=IDBERibbonCreator;inMenu:=;CustomTagValue1:=;CustomTagValue2:=;CustomTagValue3:=;CustomPicture:=;CustomPicturePath:=" onAction="Callback_RibbonOnAction"   />
+          <separator id="sep_27"/>
+          <menu id="mnu_16" size="large" itemSize="large" label="Textvorlagen" screentip="Editiere Textvorlagen" imageMso="DefinePrintStyles" tag="RibbonName:=IDBERibbonCreator;inMenu:=;CustomTagValue1:=;CustomTagValue2:=;CustomTagValue3:=;CustomPicture:=;CustomPicturePath:="   >
+            <button id="btnfrmEditTextbausteine" label="Rechnungstexte bearbeiten" description="&#214;ffnet ein Fenster zur Verwaltung der vordefinierten Rechnungstexte. Diese k&#246;nnen sp&#228;ter bei der Rechnungserstellung verwendet werden." imageMso="CustomTextBoxGallery" tag="RibbonName:=IDBERibbonCreator;inMenu:=;CustomTagValue1:=;CustomTagValue2:=;CustomTagValue3:=;CustomPicture:=;CustomPicturePath:=" onAction="Callback_RibbonOnAction"   />
+            <button id="btnfrmEditKontaktdaten" label="Absender bearbeiten" description="Erlaubt die Bearbeitung der Absenderzeile &#252;ber dem Adressfeld." imageMso="NewMessageToContact" tag="RibbonName:=IDBERibbonCreator;inMenu:=;CustomTagValue1:=;CustomTagValue2:=;CustomTagValue3:=;CustomPicture:=;CustomPicturePath:=" onAction="Callback_RibbonOnAction"  />
+          </menu>
+          <!--End menu (mnu_16) NOT delete this remark-->
+        </group>             
+        <group idMso="GroupWindowAccess" > 
+        </group>
+        <group id="grpWeitere" label="Weitere">
+          <button id="btnfrmEditSettings" size="normal" label="Einstellungen" imageMso="ViewsFormView" onAction="Callback_RibbonOnAction" />
+          <button id="btnmcrCreateBackup" size="normal" label="Datenbank sichern" screentip="Backup erzeugen" supertip="Erzeugt ein Backup der Datenbank auf einem externen Speichermedium." imageMso="FileBackupDatabase" onAction="Callback_RibbonOnAction"/>
+          <button id="btnfrmAppInfo" size="normal" label="Info" screentip="Information" supertip="Zeigt die Anwendungsinformationen." imageMso="Info" onAction="Callback_RibbonOnAction" />
+        </group>
+        <group idMso="GroupTextFormatting" >
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>

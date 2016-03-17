@@ -1,0 +1,57 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+  <ribbon startFromScratch="true">
+    <tabs>
+      <tab id="tabPraxisverwaltung" label="Praxisverwaltung">
+        <group id="grpPatientenverwaltung" label="Patienten">
+          <button id="btnfrmEditPatienten" size="large" label="Patientenverzeichnis" screentip="Patientenverzeichnis" supertip="&#214;ffnet das Fenster zur Verwaltung der Patientendaten" imageMso="AddressBook" onAction="Callback_RibbonOnAction" />
+        </group>
+        <group id="grpBehandlung" label="Behandlung">
+          <button id="btnfrmShowBehandlungen" size="large" label="Behandlungen" screentip="Behandlungen anzeigen" supertip="Zeigt alle Behandlungen an. &#220;ber dieses Fenster k&#246;nnen auch Behandlungstermine hinzugef&#252;gt und Rechnungen erstellt werden." imageMso="AccessTableTasks" onAction="Callback_RibbonOnAction" />
+          <separator id="sepBehandlung" />
+          <button id="btnfrmEditLeistungstabelle" size="large" label="Leistungstabelle verwalten" screentip="Verwaltung der Leistungen" supertip="Erlaubt die Verwaltung der abrechenbaren Leistungen f&#252;r Behandlungstermine." imageMso="AccessNavigationOptions" onAction="Callback_RibbonOnAction" />
+        </group>                
+        <group id="grpRechnung" label="Rechnung">
+          <button id="btnfrmShowRechnungen" size="large" label="Rechnungen anzeigen" screentip="Rechnungen anzeigen" supertip="Zeigt alle existierenden Rechnungen an und erm&#246;glicht die Filterung nach bezahlten und unbezahlten Rechnungen." imageMso="DefinedPrintStyle" onAction="Callback_RibbonOnAction" />
+          <menu id="mnu_16" size="large" itemSize="large" label="Rechnungstexte" imageMso="DefinePrintStyles" >
+            <button id="btnfrmEditTextbausteine" label="Rechnungstexte bearbeiten" description="&#214;ffnet ein Fenster zur Verwaltung der vordefinierten Rechnungstexte. Diese k&#246;nnen sp&#228;ter bei der Rechnungserstellung verwendet werden." imageMso="CustomTextBoxGallery" onAction="Callback_RibbonOnAction"/>
+            <button id="btnfrmEditKontaktdaten" onAction="Callback_RibbonOnAction" label="Absender bearbeiten" description="Erlaubt die Bearbeitung der Absenderzeile &#252;ber dem Adressfeld." imageMso="NewMessageToContact" />
+          </menu>
+          <!--End menu (mnu_16) NOT delete this remark-->
+        </group>
+        <group idMso="GroupWindowAccess" > 
+        </group>
+        <group id="grpWeitere" label="Weitere">
+          <button id="btnfrmEditSettings" size="normal" label="Einstellungen" imageMso="ViewsFormView" onAction="Callback_RibbonOnAction" />
+          <button id="btnmcrCreateBackup" size="normal" label="Datenbank sichern" screentip="Backup erzeugen" supertip="Erzeugt ein Backup der Datenbank auf einem externen Speichermedium." imageMso="FileBackupDatabase" onAction="Callback_RibbonOnAction"/>
+          <button id="btnfrmAppInfo" size="normal" label="Info" screentip="Information" supertip="Zeigt die Anwendungsinformationen." imageMso="Info" onAction="Callback_RibbonOnAction" />
+        </group>
+        <group idMso="GroupTextFormatting" >
+        </group>
+      </tab>
+    </tabs>
+
+    <contextualTabs>
+    <tabSet idMso="TabSetFormReportExtensibility">
+      <tab id="tabRechnung" label="Rechnung">
+        <group id="grpCloseRechnung" label="Rechnung">
+          <button id="btnClose" size="large" label="Schlie&#223;en" screentip="Schlie&#223;en" supertip="Schlie&#223;t die aktuell ge&#246;ffnete Rechnung." imageMso="GroupColorModeClose" onAction="Callback_RibbonOnAction" />
+        </group>
+        <group id="grpPreviewRechnung" label="Seitenansicht">
+          <button idMso="FilePrintPreview" size="large"/>
+          <button idMso="PrintPreviewClose" size="large" />
+          <separator id="sepgrpPreview_1" />
+          <splitButton idMso="PrintPreviewZoomMenu" size="large" />
+          <toggleButton idMso="ZoomOnePage" size="large" />
+          <toggleButton idMso="PrintPreviewZoomTwoPages" size="large" />
+        </group>
+        <group id="grpPrintRechnung" label="Drucken">
+         <button idMso="PrintDialogAccess" size="large" />
+         <button idMso="PageSetupDialog" size="large" />
+        </group>
+        <group idMso="GroupExport" >
+        </group>
+      </tab>
+    </tabSet>
+    </contextualTabs>
+  </ribbon>
+</customUI>
