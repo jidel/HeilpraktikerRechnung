@@ -1,6 +1,5 @@
 # Project files to ignore
 Rechnungsstellung.accdb
-Backend/*
 
 # Windows image file caches
 Thumbs.db

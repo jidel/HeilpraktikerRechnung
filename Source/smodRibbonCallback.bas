@@ -3,34 +3,34 @@ Option Explicit
 
 Public Sub Callback_RibbonOnAction(RibbonControl As IRibbonControl)
 
-    Dim id As Variant
+    Dim ID As Variant
     
     'ID übernehmen und anpassen
-    id = RibbonControl.id
-    If InStr(id, "___") > 0 Then id = Mid(id, InStr(id, "___") + 3)
-    If Left(id, 3) = "btn" Then id = Mid(id, 4)
+    ID = RibbonControl.ID
+    If InStr(ID, "___") > 0 Then ID = Mid(ID, InStr(ID, "___") + 3)
+    If Left(ID, 3) = "btn" Then ID = Mid(ID, 4)
     
     On Error Resume Next
     
     'Je nach Aktion...
-    Select Case Left(id, 3)
+    Select Case Left(ID, 3)
         Case "frm" 'Entsprechendes Formular öffnen
-            If InStr(id, "Report") > 0 Then
-                DoCmd.OpenForm id, acFormDS
+            If InStr(ID, "Report") > 0 Then
+                DoCmd.OpenForm ID, acFormDS
             Else
-                DoCmd.OpenForm id
+                DoCmd.OpenForm ID
             End If
         Case "rpt" 'Entsprechenden Bericht öffnen
-            DoCmd.OpenReport id, View:=acViewPreview
+            DoCmd.OpenReport ID, View:=acViewPreview
         Case "mcr" 'Entsprechendes Makro ausführen
-            id = Mid(id, 4)
-            DoCmd.RunMacro "mcrRibbon." & id
+            ID = Mid(ID, 4)
+            DoCmd.RunMacro "mcrRibbon." & ID
         Case "run" 'Entsprechendes Makro ausführen
-            id = Replace(Mid(id, 4), "_", ".")
-            DoCmd.RunMacro id
+            ID = Replace(Mid(ID, 4), "_", ".")
+            DoCmd.RunMacro ID
         Case Else
             'Weitere Aktionen ausführen...
-            Select Case id
+            Select Case ID
                 Case "FormView"
                     DoCmd.RunCommand acCmdFormView
                 Case "DatasheetView"

@@ -41,7 +41,7 @@ Public Function CreateBackEndBackup()
         BackupDest = rs!BackupLocation
     End If
     
-    BackUp GetBackEndLocation, BackupDest
+    BackUp getBackendLocation, BackupDest
 
 End Function
 
@@ -110,7 +110,7 @@ End Sub
 ' Public Function GetBackEndLocation()
 '======================================================================
 
-Public Function GetBackEndLocation()
+Public Function getBackendLocation()
 
     Dim strBackEnd As String
     Dim tdf As DAO.TableDef
@@ -122,6 +122,6 @@ Public Function GetBackEndLocation()
         End If
     Next tdf
     
-    GetBackEndLocation = strBackEnd
+    getBackendLocation = strBackEnd
 
 End Function
