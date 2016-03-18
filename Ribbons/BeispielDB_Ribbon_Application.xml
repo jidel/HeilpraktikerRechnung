@@ -6,7 +6,7 @@
           <button id="btnfrmEditPatienten" size="large" label="Patientenverzeichnis" screentip="Patientenverzeichnis" supertip="&#214;ffnet das Fenster zur Verwaltung der Patientendaten" imageMso="AddressBook" onAction="Callback_RibbonOnAction" />
         </group>  
         <group id="grpRechnung" label="Rechnungen" tag = "RibbonName:=IDBERibbonCreator" > 
-          <button id="btnfrmEditRechnungen" size="large" label="Neue Rechnung" screentip="Neue Rechnung anlegen" supertip="Legt eine neue Rechnung an, zu welcher einzelne Positionen hinzugef&#252;gt werden k&#246;nnen." imageMso="AdpDiagramNewTable" tag="RibbonName:=IDBERibbonCreator;inMenu:=;CustomTagValue1:=;CustomTagValue2:=;CustomTagValue3:=;CustomPicture:=;CustomPicturePath:=" onAction="Callback_RibbonOnAction"   />
+          <button id="btnmcrNewRechnung" size="large" label="Neue Rechnung" screentip="Neue Rechnung anlegen" supertip="Legt eine neue Rechnung an, zu welcher einzelne Positionen hinzugef&#252;gt werden k&#246;nnen." imageMso="AdpDiagramNewTable" tag="RibbonName:=IDBERibbonCreator;inMenu:=;CustomTagValue1:=;CustomTagValue2:=;CustomTagValue3:=;CustomPicture:=;CustomPicturePath:=" onAction="Callback_RibbonOnAction"   />
           <separator id="sep_26"/>
           <button id="btnfrmShowRechnungen" size="large" label="Alle Rechnungen" screentip="Zeigt alle Rechnungen" supertip="Zeigt alle existierenden Rechnungen an und erm&#246;glicht das Suchen nach Rechnungen" imageMso="ZoomToSelection" tag="RibbonName:=IDBERibbonCreator;inMenu:=;CustomTagValue1:=;CustomTagValue2:=;CustomTagValue3:=;CustomPicture:=;CustomPicturePath:=" onAction="Callback_RibbonOnAction"   />
         </group>
