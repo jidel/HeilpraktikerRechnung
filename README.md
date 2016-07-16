@@ -4,7 +4,7 @@ Simples Rechnungsprogramm für Heilpraktiker. Erlaubt die Ausweisung von Leistun
 ![application_full](https://cloud.githubusercontent.com/assets/6048968/13897856/69c46fe0-edc0-11e5-8b52-1951d2faf560.PNG)
 
 ## Download
-Frome [here](https://github.com/jidel/HeilpraktikerRechnung/releases).
+From [here](https://github.com/jidel/HeilpraktikerRechnung/releases).
 
 ## Development Instructions
 ### Composing and Decomposing
