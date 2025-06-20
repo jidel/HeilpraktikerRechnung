@@ -5,30 +5,52 @@
 Option Compare Database
 Option Explicit
 
-Private Type BROWSEINFO
-    hOwner          As Long
-    pidlRoot        As Long
-    pszDisplayName  As String
-    lpszTitle       As String
-    ulFlags         As Long
-    lpfn            As Long
-    lParam          As Long
-    iImage          As Long
-End Type
+#If VBA7 Then
+    Private Type BROWSEINFO
+        hOwner          As LongPtr        ' Handle, so LongPtr
+        pidlRoot        As LongPtr        ' Pointer, so LongPtr
+        pszDisplayName  As String
+        lpszTitle       As String
+        ulFlags         As Long
+        lpfn            As LongPtr        ' Callback pointer, LongPtr
+        lParam          As LongPtr        ' LPARAM, LongPtr
+        iImage          As Long
+    End Type
+#Else
+    Private Type BROWSEINFO
+        hOwner          As Long
+        pidlRoot        As Long
+        pszDisplayName  As String
+        lpszTitle       As String
+        ulFlags         As Long
+        lpfn            As Long
+        lParam          As Long
+        iImage          As Long
+    End Type
+#End If
 
 '========== Funktionen einbinden ==========
 
-Private Declare Function SHGetPathFromIDList Lib "shell32.dll" Alias _
-            "SHGetPathFromIDListA" (ByVal pidl As Long, _
-            ByVal pszPath As String) As Long
- 
-Private Declare Function SHBrowseForFolder Lib "shell32.dll" Alias _
-            "SHBrowseForFolderA" (lpBrowseInfo As BROWSEINFO) _
-            As Long
- 
-Private Declare Function SendMessage Lib "user32.dll" Alias "SendMessageA" _
-            (ByVal hWnd As Long, ByVal Msg As Long, wParam As Any, _
-            lParam As Any) As Long
+#If VBA7 Then
+    Private Declare PtrSafe Function SHGetPathFromIDList Lib "shell32.dll" Alias _
+        "SHGetPathFromIDListA" (ByVal pidl As LongPtr, ByVal pszPath As String) As Long
+
+    Private Declare PtrSafe Function SHBrowseForFolder Lib "shell32.dll" Alias _
+        "SHBrowseForFolderA" (lpBrowseInfo As BROWSEINFO) As LongPtr
+
+    Private Declare PtrSafe Function SendMessage Lib "user32.dll" Alias "SendMessageA" ( _
+        ByVal hWnd As LongPtr, ByVal Msg As Long, wParam As Any, lParam As Any) As Long
+#Else
+    Private Declare Function SHGetPathFromIDList Lib "shell32.dll" Alias _
+        "SHGetPathFromIDListA" (ByVal pidl As Long, ByVal pszPath As String) As Long
+
+    Private Declare Function SHBrowseForFolder Lib "shell32.dll" Alias _
+        "SHBrowseForFolderA" (lpBrowseInfo As BROWSEINFO) As Long
+
+    Private Declare Function SendMessage Lib "user32.dll" Alias "SendMessageA" ( _
+        ByVal hWnd As Long, ByVal Msg As Long, wParam As Any, lParam As Any) As Long
+#End If
+
             
 '========== Private Konstanten ==========
 
@@ -48,7 +70,11 @@ Public Function VerzeichnisSuchen(szDialogTitle As String, _
  
   Dim X         As Long
   Dim bi        As BROWSEINFO
+#If VBA7 Then
+  Dim dwIList   As LongPtr    ' PIDL handle should be LongPtr in 64-bit
+#Else
   Dim dwIList   As Long
+#End If
   Dim szPath    As String
   Dim wPos      As Integer
  
@@ -77,16 +103,21 @@ End Function
 ' Public Function BrowseCallbackProc
 '======================================================================
 
+#If VBA7 Then
+Public Function BrowseCallbackProc(ByVal hWnd As LongPtr, ByVal uMsg As Long, _
+                ByVal lParam As LongPtr, ByVal lpData As LongPtr) As Long
+#Else
 Public Function BrowseCallbackProc(ByVal hWnd As Long, ByVal uMsg As Long, _
                 ByVal lParam As Long, ByVal lpData As Long) As Long
+#End If
  
     Dim pathstring  As String
-    Dim retval      As Long
+    Dim RetVal      As Long
  
     Select Case uMsg
         Case BFFM_INITIALIZED
             pathstring = StartDir
-            retval = SendMessage(hWnd, BFFM_SETSELECTION, _
+            RetVal = SendMessage(hWnd, BFFM_SETSELECTION, _
                      ByVal CLng(1), ByVal pathstring)
     End Select
  
@@ -98,8 +129,6 @@ End Function
 ' Public Function DummyFunc
 '======================================================================
 
-Public Function DummyFunc(ByVal param As Long) As Long
- 
+Public Function DummyFunc(ByVal param As LongPtr) As LongPtr
     DummyFunc = param
- 
 End Function

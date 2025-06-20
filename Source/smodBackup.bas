@@ -5,9 +5,17 @@
 Option Compare Database
 Option Explicit
 
-Declare Function CopyFile& Lib "kernel32" Alias "CopyFileA" (ByVal _
-lpExistingFilename As String, ByVal lbNewFileName As String, ByVal _
-bFailIfExists As Long)
+#If VBA7 Then
+    Private Declare PtrSafe Function CopyFile Lib "kernel32" Alias "CopyFileA" ( _
+        ByVal lpExistingFileName As String, _
+        ByVal lpNewFileName As String, _
+        ByVal bFailIfExists As Long) As Long
+#Else
+    Private Declare Function CopyFile Lib "kernel32" Alias "CopyFileA" ( _
+        ByVal lpExistingFileName As String, _
+        ByVal lpNewFileName As String, _
+        ByVal bFailIfExists As Long) As Long
+#End If
 
 '======================================================================
 '

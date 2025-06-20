@@ -1,6 +1,6 @@
 '--------------------------------------------------------------------
 '
-' Copyright 1996-2011 J Street Technology, Inc.
+' Copyright 1996-2013 J Street Technology, Inc.
 ' www.JStreetTech.com
 '
 ' This code may be used and distributed as part of your application
@@ -10,37 +10,158 @@
 ' any liability for bugs or problems with any of the code.  In
 ' addition, we do not provide free technical support for this code.
 '
+' Code for Password-masked InputBox was originally written by
+' Daniel Klann in March 2003 and has been adapted & updaed for 64-bit
+' compatiblity
 '--------------------------------------------------------------------
 Option Compare Database
 Option Explicit
 
 'Revised Type Declare for compatability with NT
-Type tagOPENFILENAME
-    lStructSize         As Long
-    hwndOwner           As Long
-    hInstance           As Long
-    lpstrFilter         As String
-    lpstrCustomFilter   As Long
-    nMaxCustFilter      As Long
-    nFilterIndex        As Long
-    lpstrFile           As String
-    nMaxFile            As Long
-    lpstrFileTitle      As String
-    nMaxFileTitle       As Long
-    lpstrInitialDir     As String
-    lpstrTitle          As String
-    Flags               As Long
-    nFileOffset         As Integer
-    nFileExtension      As Integer
-    lpstrDefExt         As String
-    lCustData           As Long
-    lpfnHook            As Long
-    lpTemplateName      As Long
-End Type
+'Re-revised for 64-bit compatibility
+#If VBA7 Then
+    Type tagOPENFILENAME
+        lStructSize         As Long
+        hwndOwner           As LongPtr
+        hInstance           As LongPtr
+        lpstrFilter         As String
+        lpstrCustomFilter   As Long
+        nMaxCustFilter      As Long
+        nFilterIndex        As Long
+        lpstrFile           As String
+        nMaxFile            As Long
+        lpstrFileTitle      As String
+        nMaxFileTitle       As Long
+        lpstrInitialDir     As String
+        lpstrTitle          As String
+        Flags               As Long
+        nFileOffset         As Integer
+        nFileExtension      As Integer
+        lpstrDefExt         As String
+        lCustData           As LongPtr
+        lpfnHook            As LongPtr
+        lpTemplateName      As Long
+    End Type
+    
+    
+    Private Declare PtrSafe Function GetOpenFileName Lib "comdlg32.dll" _
+        Alias "GetOpenFileNameA" (OPENFILENAME As tagOPENFILENAME) As Boolean
 
-Private Declare Function GetOpenFileName Lib "comdlg32.dll" _
-    Alias "GetOpenFileNameA" (OPENFILENAME As tagOPENFILENAME) As Long
-  
+'APIs for Password-masked Inputbox
+    Private Declare PtrSafe Function CallNextHookEx Lib "user32" ( _
+        ByVal hHook As LongPtr, _
+        ByVal ncode As Long, _
+        ByVal wParam As LongPtr, _
+        lParam As Any _
+    ) As LongPtr
+    
+    Private Declare PtrSafe Function GetModuleHandle Lib "kernel32" Alias "GetModuleHandleA" ( _
+        ByVal lpModuleName As String _
+    ) As LongPtr
+
+    Private Declare PtrSafe Function SetWindowsHookEx Lib "user32" Alias "SetWindowsHookExA" ( _
+        ByVal idHook As Long, _
+        ByVal lpfn As LongPtr, _
+        ByVal hmod As LongPtr, _
+        ByVal dwThreadId As Long _
+    ) As LongPtr
+    
+    Private Declare PtrSafe Function UnhookWindowsHookEx Lib "user32" ( _
+        ByVal hHook As LongPtr _
+    ) As Long
+
+    Private Declare PtrSafe Function SendDlgItemMessage Lib "user32" Alias "SendDlgItemMessageA" ( _
+        ByVal hDlg As LongPtr, _
+        ByVal nIDDlgItem As Long, _
+        ByVal wMsg As Long, _
+        ByVal wParam As LongPtr, _
+        ByVal lParam As LongPtr _
+    ) As LongPtr
+    
+    Private Declare PtrSafe Function GetClassName Lib "user32" Alias "GetClassNameA" ( _
+        ByVal hWnd As LongPtr, _
+        ByVal lpClassName As String, _
+        ByVal nMaxCount As Long _
+    ) As Long
+
+    Private Declare PtrSafe Function GetCurrentThreadId Lib "kernel32" () As Long
+    
+    Private hHook As LongPtr
+#Else
+    Type tagOPENFILENAME
+        lStructSize         As Long
+        hwndOwner           As Long
+        hInstance           As Long
+        lpstrFilter         As String
+        lpstrCustomFilter   As Long
+        nMaxCustFilter      As Long
+        nFilterIndex        As Long
+        lpstrFile           As String
+        nMaxFile            As Long
+        lpstrFileTitle      As String
+        nMaxFileTitle       As Long
+        lpstrInitialDir     As String
+        lpstrTitle          As String
+        Flags               As Long
+        nFileOffset         As Integer
+        nFileExtension      As Integer
+        lpstrDefExt         As String
+        lCustData           As Long
+        lpfnHook            As Long
+        lpTemplateName      As Long
+    End Type
+    
+    Private Declare Function GetOpenFileName Lib "comdlg32.dll" _
+        Alias "GetOpenFileNameA" (OPENFILENAME As tagOPENFILENAME) As Long
+        
+'APIs for Password-masked Inputbox
+    Private Declare Function CallNextHookEx Lib "user32" ( _
+        ByVal hHook As Long, _
+        ByVal ncode As Long, _
+        ByVal wParam As Long, _
+        lParam As Any _
+    ) As Long
+    
+    Private Declare Function GetModuleHandle Lib "kernel32" Alias "GetModuleHandleA" ( _
+        ByVal lpModuleName As String _
+    ) As Long
+
+    Private Declare Function SetWindowsHookEx Lib "user32" Alias "SetWindowsHookExA" ( _
+        ByVal idHook As Long, _
+        ByVal lpfn As Long, _
+        ByVal hmod As Long, _
+        ByVal dwThreadId As Long _
+    ) As Long
+    
+    Private Declare Function UnhookWindowsHookEx Lib "user32" ( _
+        ByVal hHook As Long _
+    ) As Long
+
+    Private Declare Function SendDlgItemMessage Lib "user32" Alias "SendDlgItemMessageA" ( _
+        ByVal hDlg As Long, _
+        ByVal nIDDlgItem As Long, _
+        ByVal wMsg As Long, _
+        ByVal wParam As Long, _
+        ByVal lParam As Long _
+    ) As Long
+    
+    Private Declare Function GetClassName Lib "user32" Alias "GetClassNameA" ( _
+        ByVal hwnd As Long, _
+        ByVal lpClassName As String, _
+        ByVal nMaxCount As Long _
+    ) As Long
+
+    Private Declare Function GetCurrentThreadId Lib "kernel32" () As Long
+    
+    Private hHook As Long
+#End If
+
+'Constants used by Password-masked Inputbox
+Private Const EM_SETPASSWORDCHAR As Long = &HCC
+Private Const WH_CBT As Long = 5
+Private Const HCBT_ACTIVATE As Long = 5
+Private Const HC_ACTION As Long = 0
+ 
 Private Sub HandleError(strLoc As String, strError As String, intError As Integer)
     MsgBox strLoc & ": " & strError & " (" & intError & ")", 16, "CheckTableLinks"
 End Sub
@@ -57,7 +178,9 @@ Private Function TableLinkOkay(strTableName As String) As Boolean
     Set tdf = CurDB.TableDefs(strTableName)
     TableLinkOkay = True
     If tdf.Connect <> "" Then
-        strFieldName = tdf.Fields(0).Name    'Do not test if nonlinked table
+        '#BGC updated to be more thorough in checking the link by opening a recordset
+        'ACS 10/31/2013 Added brackets to support spaces in table and field names
+        strFieldName = CurDB.OpenRecordset("SELECT TOP 1 [" & tdf.Fields(0).Name & "] FROM [" & tdf.Name & "];", dbOpenSnapshot, dbReadOnly).Fields(0).Name  'Do not test if nonlinked table
     End If
     TableLinkOkay = True
 TableLinkOkayExit:
@@ -114,6 +237,7 @@ Private Sub RelinkTables(strCurConnectProp As String, intResultcode As Integer)
     Dim strMsg As String
     Dim varReturnVal
     Dim strAccExt As String
+    Dim strPassword As String
     
     Const OFN_PATHMUSTEXIST = &H1000
     Const OFN_FILEMUSTEXIST = &H800
@@ -152,9 +276,10 @@ Private Sub RelinkTables(strCurConnectProp As String, intResultcode As Integer)
     
     'Revisions to handle to the Win32 structure
     'See changes to type declare
+    'Changed from Len to LenB for 64-bit compatibility
     '-----------------------------------------------------------
     With OPENFILENAME
-        .lStructSize = Len(OPENFILENAME)
+        .lStructSize = LenB(OPENFILENAME)
         .hwndOwner = Application.hWndAccessApp
         .lpstrFilter = strFilter
         .nFilterIndex = 1
@@ -184,30 +309,45 @@ Private Sub RelinkTables(strCurConnectProp As String, intResultcode As Integer)
         
     'Open New Database and create New Connect Property
             DoCmd.Hourglass True
-            Set NewDB = OpenDatabase(OPENFILENAME.lpstrFile, False, True)
-         
+            
+            '#BGC Moved to a separate routine and handle the password
+            'Set NewDB = OpenDatabase(OPENFILENAME.lpstrFile, False, True)
+            strPassword = ExtractPassword(strSaveCurConnectProp)
+            Set NewDB = GetDatabase(OPENFILENAME.lpstrFile, strPassword)
+            If Not NewDB Is Nothing Then
     'Set tables connect property to new connect & test
-            intNumTables = CurDB.TableDefs.Count
-            varReturnVal = SysCmd(acSysCmdInitMeter, "Linking Access Database", intNumTables)
-            For intTableIndex = 0 To intNumTables - 1
-                DoEvents
-                varReturnVal = SysCmd(acSysCmdUpdateMeter, intTableIndex)
-                Set tdf = CurDB.TableDefs(intTableIndex)
-                If tdf.Connect = strCurConnectProp Then
-                    tdf.Connect = strNewConnectProp
-                    strTableName = tdf.Name
-                    If Not Relink(tdf) Then
-                        'Link failed, restore previous connect property and generate msgs
-                        tdf.Connect = strCurConnectProp
-                        intResultcode = 2       'Link failed
-                        strSaveCurConnectProp = Right(strSaveCurConnectProp, intConnectCharCt - 10)
-                        strMsg = "Access Table: " & strTableName & " link failed using selected database." & vbCrLf & vbCrLf & "Table is still linked to previous database path: " & strSaveCurConnectProp & "."
-                        strTitle = "Failed Access Table Link"
-                        MsgBox strMsg, 16, strTitle
-                    End If
+                If Len(strPassword) Then
+                    strNewConnectProp = "MS Access;PWD=" & strPassword & strNewConnectProp
                 End If
-            Next intTableIndex
-        varReturnVal = SysCmd(acSysCmdRemoveMeter)
+                intNumTables = CurDB.TableDefs.Count
+                varReturnVal = SysCmd(acSysCmdInitMeter, "Linking Access Database", intNumTables)
+                For intTableIndex = 0 To intNumTables - 1
+                    DoEvents
+                    varReturnVal = SysCmd(acSysCmdUpdateMeter, intTableIndex)
+                    Set tdf = CurDB.TableDefs(intTableIndex)
+                    If tdf.Connect = strCurConnectProp Then
+                        tdf.Connect = strNewConnectProp
+                        strTableName = tdf.Name
+                        If Not Relink(tdf) Then
+                            'Link failed, restore previous connect property and generate msgs
+                            tdf.Connect = strCurConnectProp
+                            intResultcode = 2       'Link failed
+                            '#BGC changed the Right to Mid$ and searching on the DATABASE key to handle different starting length
+                            strSaveCurConnectProp = Mid$(strSaveCurConnectProp, InStr(1, strSaveCurConnectProp, ";DATABASE=") + 10)
+                            strMsg = "Access Table: " & strTableName & " link failed using selected database." & vbCrLf & vbCrLf & "Table is still linked to previous database path: " & strSaveCurConnectProp & "."
+                            strTitle = "Failed Access Table Link"
+                            MsgBox strMsg, 16, strTitle
+                        End If
+                    End If
+                Next intTableIndex
+                varReturnVal = SysCmd(acSysCmdRemoveMeter)
+            Else
+                'Unable to connect to the database, return link failed
+                intResultcode = 2
+                strMsg = "Relinking selected database failed." & vbCrLf & vbCrLf & "Table(s) are still linked to previous database path: " & Mid$(strSaveCurConnectProp, InStr(1, strSaveCurConnectProp, ";DATABASE=") + 10) & "."
+                strTitle = "Failed Access Table Link"
+                MsgBox strMsg, 16, strTitle
+            End If
         Else
             intResultcode = 0   'No change in Link
         End If
@@ -275,7 +415,8 @@ Public Sub jstCheckTableLinks(CheckMode As String, LinksChanged As Boolean, Link
     Dim strTitle As String
     Dim intNoLinksChanged As Integer
     Dim varReturnVal As Variant
-    
+    Dim strPassword As String
+                                                    
     On Error GoTo CheckTableLinksError
     DoCmd.Hourglass True
     varReturnVal = SysCmd(acSysCmdSetStatus, "Checking linked databases.")
@@ -293,21 +434,22 @@ Public Sub jstCheckTableLinks(CheckMode As String, LinksChanged As Boolean, Link
             Set tdf = CurDB.TableDefs(intTableIndex)
             'If there is a connect string
             If tdf.Connect & "" <> "" Then
-                bPathFound = False
-                'Loop through the array to check for pre-existence of database to preserve uniqueness of db paths
-                For intDBIndex = 0 To (intNumTables - 1)
-                    If tdf.Connect = UniquePathArray(intTableIndex, 0) Then
-                        bPathFound = True
-                        Exit For
-                    End If
-                Next
+'#BGC Commented -- the loop is not needed when doing CheckAppFolder since we're overriding
+'                bPathFound = False
+'                'Loop through the array to check for pre-existence of database to preserve uniqueness of db paths
+'                For intDBIndex = 0 To (intNumTables - 1)
+'                    If tdf.Connect = UniquePathArray(intTableIndex, 0) Then
+'                        bPathFound = True
+'                        Exit For
+'                    End If
+'                Next
                         
-                'If the path was not found in the array, add it to the unique array of paths.
-                If bPathFound = False Then
+'                'If the path was not found in the array, add it to the unique array of paths.
+'                If bPathFound = False Then
                     UniquePathArray(intDBCount, 1) = 0
                     UniquePathArray(intDBCount, 0) = tdf.Connect
                     intDBCount = intDBCount + 1
-                End If
+'                End If
             End If
         Next
         
@@ -329,7 +471,7 @@ Public Sub jstCheckTableLinks(CheckMode As String, LinksChanged As Boolean, Link
         Set tdf = CurDB.TableDefs(intTableIndex)
         fFound = False
           
-        If Left(tdf.Connect, 10) = ";DATABASE=" Then
+        If tdf.Connect Like "*;DATABASE=*" Then
             'BGC -- changed from NOT "ODBC" to = ";DATABASE=" explicitly to get Access tables only
           
             strCurConnectProp = tdf.Connect
@@ -340,7 +482,11 @@ Public Sub jstCheckTableLinks(CheckMode As String, LinksChanged As Boolean, Link
                         If tdf.Connect & "" <> "" And tdf.Connect = UniquePathArray(intDBOverrideIndex, 0) And UniquePathArray(intDBOverrideIndex, 1) = True Then
                             bOverride = True
                             strFileSearch = UniquePathArray(intDBOverrideIndex, 0)
-                            tdf.Connect = ";DATABASE=" & PathOnly(CurDB.Name) & FileOnly(strFileSearch)
+                            strPassword = ExtractPassword(tdf.Connect)
+                            If Len(strPassword) Then
+                                strPassword = "MS Access;PWD=" & strPassword
+                            End If
+                            tdf.Connect = strPassword & ";DATABASE=" & PathOnly(CurDB.Name) & FileOnly(strFileSearch)
                             Exit For
                         End If
                     Next
@@ -352,7 +498,7 @@ Public Sub jstCheckTableLinks(CheckMode As String, LinksChanged As Boolean, Link
                     'Link failed, restore previous connect property and generate msgs
                     tdf.Connect = strCurConnectProp
                     'intResultcode = 2       'Link failed
-                    strMsg = "Application Folder Table: " & tdf.Name & " link failed." & vbCrLf & vbCrLf & "The current path for this linked table is: " & strCurConnectProp & "."
+                    strMsg = "Application Folder Table: " & tdf.Name & " link failed." & vbCrLf & vbCrLf & "The current path for this linked table is: " & Mid$(strCurConnectProp, InStr(1, strCurConnectProp, ";DATABASE=") + 10) & "."
                     strTitle = "Failed Table Link"
                     MsgBox strMsg, 16, strTitle
                 End If
@@ -620,3 +766,168 @@ Err_InStrRight:
     MsgBox Err.Number & ", " & Err.Description
     Resume Exit_InStrRight
 End Function
+
+Private Function GetDatabase( _
+    strDatabasePath As String, _
+    strPassword As String _
+) As DAO.Database
+    Dim db As DAO.Database
+    Dim lngTries As Long
+        
+    Do
+        On Error GoTo NoPasswordErrHandler
+        Set db = DBEngine.OpenDatabase(strDatabasePath, False, True, "MS Access;PWD=" & strPassword)
+        On Error GoTo ErrHandler
+        If db Is Nothing Then
+            If Len(strPassword) Then
+                MsgBox "Invalid password.", vbCritical, "Try again."
+            End If
+            strPassword = InputBoxDK("The database requires a password to open. Please provide a password.", "Password-protected database.")
+            lngTries = lngTries + 1
+            If Len(strPassword) = 0 Then
+                Exit Do
+            End If
+        End If
+    Loop While db Is Nothing And lngTries < 3
+    
+    Set GetDatabase = db
+    
+ExitProc:
+    On Error Resume Next
+    Exit Function
+NoPasswordErrHandler:
+    If Err.Number = 3031 Then
+        Set db = Nothing
+        Resume Next
+    End If
+ErrHandler:
+    Select Case Err.Number
+        Case Else
+            VBA.MsgBox "Error " & Err.Number & " (" & Err.Description & ")"
+    End Select
+    Resume ExitProc
+    Resume 'for Debugging
+End Function
+
+Private Function ExtractPassword(strConnectionString As String) As String
+    Dim lngleft As Long
+    Dim lngRight As Long
+    
+    Const pwd As String = "PWD="
+    
+    On Error GoTo ErrHandler
+    
+    lngleft = InStr(1, strConnectionString, pwd)
+    If lngleft Then
+        lngleft = lngleft + Len(pwd)
+        lngRight = InStr(lngleft, strConnectionString, ";")
+        If lngRight = 0 Then
+            'No ending semicolon was found; return the whole substring
+            lngRight = Len(strConnectionString)
+        End If
+        ExtractPassword = Mid$(strConnectionString, lngleft, lngRight - lngleft)
+    Else
+        ExtractPassword = vbNullString
+    End If
+    
+ExitProc:
+    On Error Resume Next
+    Exit Function
+ErrHandler:
+    Select Case Err.Number
+        Case Else
+            VBA.MsgBox "Error " & Err.Number & " (" & Err.Description & ")"
+    End Select
+    Resume ExitProc
+    Resume 'for Debugging
+End Function
+
+#If VBA7 Then
+Private Function InputBoxPasswordMaskProc( _
+    ByVal lngCode As Long, _
+    ByVal wParam As LongPtr, _
+    ByVal lParam As LongPtr _
+) As LongPtr
+#Else
+Private Function InputBoxPasswordMaskProc( _
+    ByVal lngCode As Long, _
+    ByVal wParam As Long, _
+    ByVal lParam As Long _
+) As Long
+#End If
+    'DO NOT PUT IN VBA ERROR HANDLING
+    'This is a Windows procedure called by Message loop.
+    On Error Resume Next
+    
+    'Originally written by Daniel Klann
+    'Updated for 64-bit compatibility
+    
+    Dim RetVal
+    Dim strClassName As String
+    Dim lngBuffer As Long
+ 
+    If lngCode < HC_ACTION Then
+        InputBoxPasswordMaskProc = CallNextHookEx(hHook, lngCode, wParam, lParam)
+        Exit Function
+    End If
+ 
+    strClassName = String$(256, " ")
+    lngBuffer = 255
+ 
+    If lngCode = HCBT_ACTIVATE Then    'A window has been activated
+        RetVal = GetClassName(wParam, strClassName, lngBuffer)
+ 
+        If Left$(strClassName, RetVal) = "#32770" Then  'Class name of the Inputbox
+            'This changes the edit control so that it display the password character *.
+            'You can change the Asc("*") as you please.
+            SendDlgItemMessage wParam, &H1324, EM_SETPASSWORDCHAR, Asc("*"), &H0
+        End If
+    End If
+ 
+    'This line will ensure that any other hooks that may be in place are
+    'called correctly.
+    CallNextHookEx hHook, lngCode, wParam, lParam
+End Function
+ 
+Private Function InputBoxDK( _
+    Prompt, _
+    Optional Title, _
+    Optional Default, _
+    Optional XPos, _
+    Optional YPos, _
+    Optional HelpFile, _
+    Optional Context _
+) As String
+    'Originally written by Daniel Klann
+    'Updated for 64-bit compatibility
+    
+    'Replicate the functionality of Inputbox function
+    'while providing password masking.
+#If VBA7 Then
+    Dim lngModHwnd As LongPtr
+#Else
+    Dim lngModHwnd As Long
+#End If
+    Dim lngThreadID As Long
+ 
+    On Error GoTo ErrHandler
+
+    lngThreadID = GetCurrentThreadId
+    lngModHwnd = GetModuleHandle(vbNullString)
+ 
+    hHook = SetWindowsHookEx(WH_CBT, AddressOf InputBoxPasswordMaskProc, lngModHwnd, lngThreadID)
+ 
+    InputBoxDK = InputBox(Prompt, Title, Default, XPos, YPos, HelpFile, Context)
+    UnhookWindowsHookEx hHook
+
+ExitProc:
+    On Error Resume Next
+    Exit Function
+ErrHandler:
+    Select Case Err.Number
+        Case Else
+            VBA.MsgBox "Error " & Err.Number & " (" & Err.Description & ")"
+    End Select
+    Resume ExitProc
+    Resume 'for Debugging
+End Function  'Hope someone can use it!

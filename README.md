@@ -9,7 +9,7 @@ From [here](https://github.com/jidel/HeilpraktikerRechnung/releases).
 ## Development Instructions
 ### Composing and Decomposing
 Use the file ``compose.cmd`` (double click while holding ⇧ SHIFT) to reconstruct the original MS Access file from this repository.  
-If you want ot save changes you made be sure to safe them and execute ``decompose.cmd`` (while holding ⇧ SHIFT).
+If you want to save changes you made be sure to safe them and execute ``decompose.cmd`` (while holding ⇧ SHIFT).
 Because of some strange MS Access workings, it could be that the file ``Rechnungsstellung_stub.accdb`` is recognized by Git as changed even though it was not. Be sure to only commit this file if it was changed.
 
 ### Backend
